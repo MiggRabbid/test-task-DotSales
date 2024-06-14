@@ -1,40 +1,76 @@
 <template>
-  <a-list item-layout="horizontal" :data-source="data">
-    <template #renderItem="{ item }">
-      <a-list-item>
-        <a-list-item-meta
-          description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-        >
-          <template #title>
-            <a href="https://www.antdv.com/">{{ item.title }}</a>
-          </template>
-          <template #avatar>
-            <a-avatar src="https://joeschmoe.io/api/v1/random" />
-          </template>
-        </a-list-item-meta>
-      </a-list-item>
+  <a-table :columns="columns" :data-source="leads" bordered>
+    <template #bodyCell="{ column, text }">
+      <template v-if="column.key === 'responsible_user_id'">
+        {{ users[text] }}
+      </template>
+      <template v-else-if="column.key === 'created_at'">
+        {{ getDate(text) }}
+      </template>
+      <template v-else>
+        {{ text }}
+      </template>
     </template>
-  </a-list>
+  </a-table>
 </template>
 
 <script lang="ts" setup>
-interface DataItem {
-  title: string;
-}
-const data: DataItem[] = [
+import { ref, onMounted } from 'vue';
+import { fetchLeads, fetchUsers, fetchPipelines } from '../services/apiService';
+import { getNames, getDate } from '../utils/utils.ts';
+
+
+console.log('---- start Table');
+
+const leads = ref([]);
+const users = ref([]);
+const pipelines = ref([]);
+const statuses = ref([]);
+
+onMounted(async () => {
+  try {
+    leads.value = await fetchLeads();
+
+    const allUsers = await fetchUsers();
+    users.value = getNames(allUsers);
+
+
+    const allPipelines = await fetchPipelines();
+    pipelines.value = getNames(allPipelines);
+
+    console.log(users.value);
+    console.log(pipelines.value);
+  } catch (fetchError) {
+    console.error('Failed to fetch:', fetchError);
+  }
+});
+
+const columns = [
   {
-    title: 'Ant Design Title 1',
+    title: 'НАЗВАНИЕ СДЕЛКИ',
+    dataIndex: 'name',
+    key: 'name',
   },
   {
-    title: 'Ant Design Title 2',
+    title: 'БЮДЖЕТ, €',
+    dataIndex: 'price',
+    key: 'price',
   },
   {
-    title: 'Ant Design Title 3',
+    title: 'СТАТУС СДЕЛКИ',
+    dataIndex: 'status_id',
+    key: 'status_id',
   },
   {
-    title: 'Ant Design Title 4',
+    title: 'ОТВЕТСТВЕННЫЙ',
+    dataIndex: 'responsible_user_id',
+    key: 'responsible_user_id',
+  },
+  {
+    title: 'ДАТА СОЗДАНИЯ',
+    dataIndex: 'created_at',
+    key: 'created_at',
   },
 ];
 </script>
-
 
