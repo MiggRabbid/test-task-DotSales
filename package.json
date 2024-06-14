@@ -1,0 +1,28 @@
+{
+  "name": "test-task-dotsales",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "author": "MiggRabbid",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiggRabbid/test-task-DotSales.git"
+  },
+  "homepage": "https://github.com/MiggRabbid/test-task-DotSales#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ant-design-vue": "^4.2.3",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.6"
+  }
+}
