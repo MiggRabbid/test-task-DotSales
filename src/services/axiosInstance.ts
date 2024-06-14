@@ -4,7 +4,7 @@ const TOKEN='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjJhOGM5MzRhYjBjZTFkYjR
 
 // нужно исправить этот костыль
 const api = axios.create({
-  baseURL: 'https://cors-anywhere.herokuapp.com/https://mig26.amocrm.ru/api',
+  baseURL: 'https://mig26.amocrm.ru/api',
   headers: {
     'Authorization': `Bearer ${TOKEN}`,
     'Content-Type': 'application/json'
