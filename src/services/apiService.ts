@@ -15,7 +15,6 @@ const fetchData = async <T>(endpoint: string): Promise<T> => {
 const fetchLeads = async (): Promise<iTableLead[]> => {
   try {
     const data = await fetchData<{ leads: iLead[] }>('/leads');
-    console.log('data', data)
     return data.leads.map((lead: iLead) => ({
       id: lead.id,
       name: lead.name,
