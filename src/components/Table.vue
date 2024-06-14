@@ -1,76 +1,110 @@
 <template>
-  <a-table :columns="columns" :data-source="leads" bordered>
+  <a-table
+    :columns="columns"
+    :data-source="leads"
+    :expandedRowKeys="expandedRowKeys"
+    :pagination="false"
+    rowKey="id"
+    @expand="onExpand"
+    bordered
+    responsive
+    class="container"
+  >
     <template #bodyCell="{ column, text }">
-      <template v-if="column.key === 'responsible_user_id'">
-        {{ users[text] }}
+      <template v-if="column.key === 'pipeline_id'">
+        {{ pipelines[text] }}
       </template>
       <template v-else-if="column.key === 'created_at'">
-        {{ getDate(text) }}
+        {{ formatDate(text) }}
       </template>
-      <template v-else>
-        {{ text }}
+      <template v-else-if="column.key === 'status_id'">
+        <span>
+          <a-tag :color="getStatusColor(statuses[text])">
+            {{ statuses[text] }}
+          </a-tag>
+        </span>
       </template>
     </template>
+
+    <template #expandedRowRender="{ record }">
+      <ExpandedRow :record="record" :companies="companies" :users="users" />
+    </template>
+    
+    <template #footer></template>
   </a-table>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { fetchLeads, fetchUsers, fetchPipelines } from '../services/apiService';
-import { getNames, getDate } from '../utils/utils.ts';
+import { ref, defineProps } from 'vue';
 
+import { formatDate, getStatusColor } from '../utils/utils.ts';
+
+import ExpandedRow from './ExpandedRow.vue'
+
+import { iTableLead } from '../models/interfaces.ts';
+import { typeNames, typeParsCompanies } from '../models/types.ts';
 
 console.log('---- start Table');
 
-const leads = ref([]);
-const users = ref([]);
-const pipelines = ref([]);
-const statuses = ref([]);
+interface iTableProps {
+  leads: iTableLead[];
+  users: typeNames;
+  companies: typeParsCompanies;
+  pipelines: typeNames;
+  statuses: typeNames;
+}
 
-onMounted(async () => {
-  try {
-    leads.value = await fetchLeads();
+// @ts-ignore
+const props = defineProps<iTableProps>();
 
-    const allUsers = await fetchUsers();
-    users.value = getNames(allUsers);
+const expandedRowKeys = ref<number[]>([]);
 
-
-    const allPipelines = await fetchPipelines();
-    pipelines.value = getNames(allPipelines);
-
-    console.log(users.value);
-    console.log(pipelines.value);
-  } catch (fetchError) {
-    console.error('Failed to fetch:', fetchError);
+const onExpand = (expanded: boolean, record: iTableLead) => {
+  if (expanded) {
+    expandedRowKeys.value.push(record.id);
+  } else {
+    expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.id);
   }
-});
+};
 
 const columns = [
   {
-    title: 'НАЗВАНИЕ СДЕЛКИ',
+    title: 'СДЕЛКА',
     dataIndex: 'name',
     key: 'name',
+    width: '20%',
+  },
+  {
+    title: 'ВОРОНКА',
+    dataIndex: 'pipeline_id',
+    key: 'pipeline_id',
+    width: '20%',
   },
   {
     title: 'БЮДЖЕТ, €',
     dataIndex: 'price',
     key: 'price',
+    width: '20%',
   },
   {
     title: 'СТАТУС СДЕЛКИ',
     dataIndex: 'status_id',
     key: 'status_id',
+    width: '20%',
   },
   {
-    title: 'ОТВЕТСТВЕННЫЙ',
-    dataIndex: 'responsible_user_id',
-    key: 'responsible_user_id',
-  },
-  {
-    title: 'ДАТА СОЗДАНИЯ',
-    dataIndex: 'created_at',
-    key: 'created_at',
+    title: 'ДАТА ОБНОВЛЕНИЯ',
+    dataIndex: 'updated_at',
+    key: 'updated_at',
+    width: '20%',
   },
 ];
 </script>
+
+<style scoped>
+.container {
+  overflow: hidden;
+  border-radius: 10px;
+}
+</style>
 

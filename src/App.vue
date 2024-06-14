@@ -13,6 +13,6 @@ console.log('---- start App');
 <style scoped>
 .app {
   min-height: 100vh;
-  background-color: #E5E5E5;
+  background-color: #f0f0f0;
 }
 </style>

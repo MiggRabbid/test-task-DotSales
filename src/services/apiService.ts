@@ -1,47 +1,59 @@
-import axios from 'axios';
+import api from './axiosInstance';
+import { iCompany, iLead, iPipeline, iTableCompany, iTableLead, iUser } from '../models/interfaces';
 
-const TOKEN='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjJhOGM5MzRhYjBjZTFkYjRmMmFjNTg5MzVkYzJjZjY1YjcyMzM4M2U0OTkyNWM0NjZkZTc4NjI2NzcxOTc4ZTI5NGU0ODQ4MDkyZWMxMGIxIn0.eyJhdWQiOiI1YjJkMzQ2ZC0yMmFhLTQ3OWYtYThlMy0yMjcyYjEzZTNmZTIiLCJqdGkiOiIyYThjOTM0YWIwY2UxZGI0ZjJhYzU4OTM1ZGMyY2Y2NWI3MjMzODNlNDk5MjVjNDY2ZGU3ODYyNjc3MTk3OGUyOTRlNDg0ODA5MmVjMTBiMSIsImlhdCI6MTcxODM0OTE5NywibmJmIjoxNzE4MzQ5MTk3LCJleHAiOjE3MjUxNDg4MDAsInN1YiI6IjExMTU1NDM4IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjMxNzk4Nzc4LCJiYXNlX2RvbWFpbiI6ImFtb2NybS5ydSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiMWUzYTI1YmYtNGM1YS00OWRhLTkzNTMtOTllMzE5NTFkOTQwIn0.RTxqZ9_IoScVl8zPgoULjr_3wMUTFYxWhv7HDDU8qIA7DJt2BJtOu-vEUoEQ9uvozBYVhYDI6wrH5CRaDZg60FUnbCghI7GMlGNMNb7EBF2TtFAv5AFi2T_vCWmp3GcH0-EkWO0Z0hbwxVLxzQKTiQitWV9X_RmD7-7d7vsSwLyqzXnFJ5XgdkBxYu7_Qg5tFOA_Ytuo1lmBCXyif59IKaDARRgkAlmhMnNIfSs60l_IOKTcQ7LBPQD28_xWkjjpU4ibCeD2BD-V0j4moE-xVki7tdlNuVUu03fu-z2G0n2M2na3KKpRohp3ZVzq0fK5bZnE1jDGw-Zxjg7uMjYV2g'
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Authorization': `Bearer ${TOKEN}`,
-    'Content-Type': 'application/json'
-  }
-});
-
-const fetchLeads = async () => {
-  console.log('---- start fetchLeads');
+const fetchData = async <T>(endpoint: string): Promise<T> => {
+  console.log(`---- start fetch ${endpoint}`);
   try {
-    const response = await api.get('/leads');
-    return response.data._embedded.leads;
+    const response = await api.get(endpoint);
+    return response.data._embedded;
   } catch (error) {
-    console.error('Ошибка при выполнении запроса', error);
+    console.error(`Ошибка при выполнении запроса к ${endpoint}`, error);
     throw error;
   }
 }
 
-const fetchUsers = async () => {
-  console.log('---- start fetchUsers');
+const fetchLeads = async (): Promise<iTableLead[]> => {
   try {
-    const response = await api.get(`/users/`);
-    return response.data._embedded.users;
+    const data = await fetchData<{ leads: iLead[] }>('/leads');
+    console.log('data', data)
+    return data.leads.map((lead: iLead) => ({
+      id: lead.id,
+      name: lead.name,
+      price: lead.price,
+      responsible_user_id: lead.responsible_user_id,
+      group_id: lead.group_id,
+      status_id: lead.status_id,
+      pipeline_id: lead.pipeline_id,
+      created_by: lead.created_by,
+      updated_by: lead.updated_by,
+      created_at: lead.created_at,
+      updated_at: lead.updated_at,
+      closed_at: lead.closed_at,
+      company: lead._embedded.companies[0].id,
+    }));
   } catch (error) {
-    console.error('Ошибка при выполнении запроса', error);
+    console.error('Failed to fetch leads:', error);
     throw error;
   }
 }
 
-const fetchPipelines = async () => {
-  console.log('---- start fetchPipelines');
+
+const fetchCompanies = async (): Promise<iTableCompany[]> => {
   try {
-    const response = await api.get(`/leads/pipelines`);
-    console.log(response.data._embedded.pipelines);
-    return response.data._embedded.pipelines;
+    const data = await fetchData<{ companies: iCompany[] }>('/companies');
+    return data.companies.map((company: iCompany) => {
+      return ({
+      id: company.id,
+      name: company.name,
+      address: company.custom_fields_values?.[0]?.values?.[0]?.value || 'Адресс не указан',
+    })});
   } catch (error) {
-    console.error('Ошибка при выполнении запроса', error);
+    console.error('Failed to fetch leads:', error);
     throw error;
   }
 }
 
-export { fetchLeads, fetchUsers, fetchPipelines};
+const fetchUsers = async () => fetchData<{ users: iUser[] }>('/users').then(data => data.users);
+const fetchPipelines = async () => fetchData<{ pipelines: iPipeline[] }>('/leads/pipelines').then(data => data.pipelines);
+
+export { fetchLeads, fetchUsers, fetchPipelines, fetchCompanies };
