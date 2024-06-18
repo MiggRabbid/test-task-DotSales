@@ -12,3 +12,5 @@
 - https://***.amocrm.ru/dashboard
 
 #### Реализация
+1. Сделен UI с использованием Ant Design Vue.
+2. Сделано API для запросов.
