@@ -4,7 +4,7 @@ const TOKEN='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjJhOGM5MzRhYjBjZTFkYjR
 
 // нужно исправить этот костыль
 const api = axios.create({
-  baseURL: 'https://mig26.amocrm.ru/api',
+  baseURL: '/api',
   headers: {
     'Authorization': `Bearer ${TOKEN}`,
     'Content-Type': 'application/json'

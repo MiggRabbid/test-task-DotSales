@@ -14,7 +14,7 @@
       <template v-if="column.key === 'pipeline_id'">
         {{ pipelines[text] }}
       </template>
-      <template v-else-if="column.key === 'created_at'">
+      <template v-else-if="column.key === 'updated_at'">
         {{ formatDate(text) }}
       </template>
       <template v-else-if="column.key === 'status_id'">

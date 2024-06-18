@@ -20,7 +20,7 @@
       <template v-else-if="column.key === 'closed_at'">
         {{ formatDate(text) }}
       </template>
-      <template v-else-if="column.key === 'updated_at'">
+      <template v-else-if="column.key === 'created_at'">
         {{ formatDate(text) }}
       </template>
     </template>
